@@ -11,7 +11,8 @@
       <div class="forgot-row">
         <a href="#">Esqueceu a senha?</a>
       </div>
-      <AppButton type="submit" block>Entrar</AppButton>
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+      <AppButton type="submit" block :disabled="loading">{{ loading ? 'Entrando...' : 'Entrar' }}</AppButton>
     </form>
 
     <p class="switch-row">
@@ -21,16 +22,31 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import AuthLayout from '../components/AuthLayout.vue'
 import FormField from '../components/FormField.vue'
 import AppButton from '../components/AppButton.vue'
+import { loginUser } from '../services/api'
+import { setUser } from '../stores/auth'
 
 const form = reactive({ email: '', password: '' })
+const errorMessage = ref('')
+const loading = ref(false)
+const router = useRouter()
 
-function handleSubmit() {
-  // TODO: integrar com API de autenticação
-  console.log('login', { ...form })
+async function handleSubmit() {
+  errorMessage.value = ''
+  loading.value = true
+  try {
+    const authenticatedUser = await loginUser(form.email, form.password)
+    setUser(authenticatedUser)
+    router.push({ name: 'home' })
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -62,6 +78,12 @@ function handleSubmit() {
 .forgot-row a {
   font-size: 13px;
   text-decoration: none;
+}
+
+.error {
+  color: var(--color-accent-300);
+  font-size: 13px;
+  margin: calc(var(--space-2) * -1) 0 0;
 }
 
 .switch-row {

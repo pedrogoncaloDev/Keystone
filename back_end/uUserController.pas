@@ -48,7 +48,7 @@ end;
 procedure TUserController.RegisterRoutes;
 begin
   // LOGIN
-  THorse.Get('/users/login',
+  THorse.Post('/users/login',
     procedure(Request: THorseRequest; Response: THorseResponse)
     var
       RequestBody: TJSONObject;

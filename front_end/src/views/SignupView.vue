@@ -15,7 +15,9 @@
       <FormField id="signup-password-confirmation" label="Confirmar senha" type="password"
         v-model="form.passwordConfirmation" placeholder="••••••••" required />
       <p v-if="mismatchError" class="error">As senhas não coincidem.</p>
-      <AppButton type="submit" block>Criar conta</AppButton>
+      <p v-else-if="errorMessage" class="error">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="success">{{ successMessage }}</p>
+      <AppButton type="submit" block :disabled="loading">{{ loading ? 'Enviando...' : 'Criar conta' }}</AppButton>
     </form>
 
     <p class="switch-row">
@@ -29,6 +31,7 @@ import { reactive, ref } from 'vue'
 import AuthLayout from '../components/AuthLayout.vue'
 import FormField from '../components/FormField.vue'
 import AppButton from '../components/AppButton.vue'
+import { registerUser } from '../services/api'
 
 const form = reactive({
   firstName: '',
@@ -38,12 +41,25 @@ const form = reactive({
   passwordConfirmation: '',
 })
 const mismatchError = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
+const loading = ref(false)
 
-function handleSubmit() {
+async function handleSubmit() {
+  errorMessage.value = ''
+  successMessage.value = ''
   mismatchError.value = form.password !== form.passwordConfirmation
   if (mismatchError.value) return
-  // TODO: integrar com API de cadastro
-  console.log('signup', { ...form })
+
+  loading.value = true
+  try {
+    await registerUser(form)
+    successMessage.value = 'Cadastro concluído! Você já pode entrar.'
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -74,6 +90,13 @@ function handleSubmit() {
 
 .error {
   color: var(--color-accent-300);
+  font-size: 13px;
+  margin: calc(var(--space-2) * -1) 0 0;
+}
+
+.success {
+  color: var(--color-text);
+  opacity: 0.75;
   font-size: 13px;
   margin: calc(var(--space-2) * -1) 0 0;
 }
