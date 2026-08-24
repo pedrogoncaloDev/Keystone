@@ -5,39 +5,17 @@
 
     <form class="form" @submit.prevent="handleSubmit">
       <div class="name-grid">
-        <div class="field">
-          <label for="signup-first-name">Nome</label>
-          <input class="input" id="signup-first-name" type="text" v-model="form.firstName" placeholder="Maria"
-            required />
-        </div>
-        <div class="field">
-          <label for="signup-last-name">Sobrenome</label>
-          <input class="input" id="signup-last-name" type="text" v-model="form.lastName" placeholder="Silva" required />
-        </div>
+        <FormField id="signup-first-name" label="Nome" v-model="form.firstName" placeholder="Maria" required />
+        <FormField id="signup-last-name" label="Sobrenome" v-model="form.lastName" placeholder="Silva" required />
       </div>
-      <div class="field">
-        <label for="signup-email">E-mail</label>
-        <input class="input" id="signup-email" type="email" v-model="form.email" placeholder="voce@exemplo.com"
-          required />
-      </div>
-      <div class="field">
-        <label for="signup-password">Senha</label>
-        <input class="input" id="signup-password" type="password" v-model="form.password" placeholder="••••••••"
-          required />
-      </div>
-      <div class="field">
-        <label for="signup-password-confirmation">Confirmar senha</label>
-        <input class="input" id="signup-password-confirmation" type="password" v-model="form.passwordConfirmation"
-          placeholder="••••••••" required />
-      </div>
+      <FormField id="signup-email" label="E-mail" type="email" v-model="form.email" placeholder="voce@exemplo.com"
+        required />
+      <FormField id="signup-password" label="Senha" type="password" v-model="form.password" placeholder="••••••••"
+        required />
+      <FormField id="signup-password-confirmation" label="Confirmar senha" type="password"
+        v-model="form.passwordConfirmation" placeholder="••••••••" required />
       <p v-if="mismatchError" class="error">As senhas não coincidem.</p>
-      <button type="submit" class="btn btn-primary btn-block submit-btn">
-        Criar conta
-        <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor">
-          <path
-            d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" />
-        </svg>
-      </button>
+      <AppButton type="submit" block>Criar conta</AppButton>
     </form>
 
     <p class="switch-row">
@@ -49,6 +27,8 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import AuthLayout from '../components/AuthLayout.vue'
+import FormField from '../components/FormField.vue'
+import AppButton from '../components/AppButton.vue'
 
 const form = reactive({
   firstName: '',
@@ -90,10 +70,6 @@ function handleSubmit() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
-}
-
-.submit-btn {
-  margin-top: var(--space-2);
 }
 
 .error {

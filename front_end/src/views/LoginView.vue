@@ -4,26 +4,14 @@
     <p class="subtitle">Acesse sua conta para continuar.</p>
 
     <form class="form" @submit.prevent="handleSubmit">
-      <div class="field">
-        <label for="login-email">E-mail</label>
-        <input class="input" id="login-email" type="email" v-model="form.email" placeholder="voce@exemplo.com"
-          required />
-      </div>
-      <div class="field">
-        <label for="login-password">Senha</label>
-        <input class="input" id="login-password" type="password" v-model="form.password" placeholder="••••••••"
-          required />
-      </div>
+      <FormField id="login-email" label="E-mail" type="email" v-model="form.email" placeholder="voce@exemplo.com"
+        required />
+      <FormField id="login-password" label="Senha" type="password" v-model="form.password" placeholder="••••••••"
+        required />
       <div class="forgot-row">
         <a href="#">Esqueceu a senha?</a>
       </div>
-      <button type="submit" class="btn btn-primary btn-block">
-        Entrar
-        <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor">
-          <path
-            d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" />
-        </svg>
-      </button>
+      <AppButton type="submit" block>Entrar</AppButton>
     </form>
 
     <p class="switch-row">
@@ -35,6 +23,8 @@
 <script setup>
 import { reactive } from 'vue'
 import AuthLayout from '../components/AuthLayout.vue'
+import FormField from '../components/FormField.vue'
+import AppButton from '../components/AppButton.vue'
 
 const form = reactive({ email: '', password: '' })
 
