@@ -133,21 +133,56 @@ var
 begin
   try
     Query := TFDQuery.Create(nil);
+    try
+      Query.Connection := FConnection;
+      Query.SQL.Text :=
+        'IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = ''users'') ' +
+        'BEGIN ' +
+        '  CREATE TABLE users (' +
+        '    id INT IDENTITY(1,1) PRIMARY KEY, ' +
+        '    first_name NVARCHAR(100) NOT NULL, ' +
+        '    last_name NVARCHAR(100) NOT NULL, ' +
+        '    email NVARCHAR(255) UNIQUE NOT NULL, ' +
+        '    password NVARCHAR(255) NOT NULL, ' +
+        '    creation_date DATETIME NOT NULL DEFAULT GETDATE(), ' +
+        '    updation_date DATETIME NOT NULL DEFAULT GETDATE()) ' +
+        'END';
+      Query.ExecSQL;
 
-    Query.Connection := FConnection;
-    Query.SQL.Text :=
-      'IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = ''users'') ' +
-      'BEGIN ' +
-      '  CREATE TABLE users (' +
-      '    id INT IDENTITY(1,1) PRIMARY KEY, ' +
-      '    first_name NVARCHAR(100) NOT NULL, ' +
-      '    last_name NVARCHAR(100) NOT NULL, ' +
-      '    email NVARCHAR(255) UNIQUE NOT NULL, ' +
-      '    password NVARCHAR(255) NOT NULL, ' +
-      '    creation_date DATETIME DEFAULT GETDATE()) ' +
-      'END';
+      // Migração para tabelas 'users' criadas antes de existir essa coluna.
+      Query.SQL.Text :=
+        'IF NOT EXISTS (SELECT * FROM sys.columns ' +
+        '  WHERE object_id = OBJECT_ID(''users'') AND name = ''updation_date'') ' +
+        'BEGIN ' +
+        '  ALTER TABLE users ADD updation_date DATETIME NOT NULL DEFAULT GETDATE() ' +
+        'END';
+      Query.ExecSQL;
 
-    Query.ExecSQL;
+      // Trigger garante updation_date atualizado em QUALQUER UPDATE na tabela,
+      // não só nos que passam pelo repositório Delphi. CREATE TRIGGER precisa
+      // ser o único comando do batch, por isso vai via EXEC de SQL dinâmico.
+      // TRIGGER_NESTLEVEL() > 1 evita recursão infinita: o UPDATE feito aqui
+      // dentro dispararia a própria trigger de novo.
+      Query.SQL.Text :=
+        'IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = ''trg_users_updation_date'') ' +
+        'BEGIN ' +
+        '  EXEC(''' +
+        '    CREATE TRIGGER trg_users_updation_date ' +
+        '    ON users ' +
+        '    AFTER UPDATE ' +
+        '    AS ' +
+        '    BEGIN ' +
+        '      SET NOCOUNT ON; ' +
+        '      IF TRIGGER_NESTLEVEL() > 1 RETURN; ' +
+        '      UPDATE u SET updation_date = GETDATE() ' +
+        '      FROM users u INNER JOIN inserted i ON u.id = i.id; ' +
+        '    END' +
+        ''') ' +
+        'END';
+      Query.ExecSQL;
+    finally
+      Query.Free;
+    end;
   except
     on E: Exception do
       raise Exception.Create('CreateUsersTableIfNotExists: ' + E.Message);

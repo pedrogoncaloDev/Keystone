@@ -103,7 +103,7 @@ begin
   try
     Query.Connection := FConnection;
     Query.SQL.Text :=
-      'UPDATE users ' +
+      'UPDATE users ' + // updation_date é mantido por trigger (trg_users_updation_date)
       'SET first_name = :first_name, last_name = :last_name, email = :email, password = :password ' +
       'WHERE email = :email_where';
     Query.ParamByName('first_name').AsWideString  := NewUser.FirstName;
