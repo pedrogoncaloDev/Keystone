@@ -55,6 +55,11 @@ async function handleSubmit() {
   try {
     await registerUser(form)
     successMessage.value = 'Cadastro concluído! Você já pode entrar.'
+    form.firstName = ''
+    form.lastName = ''
+    form.email = ''
+    form.password = ''
+    form.passwordConfirmation = ''
   } catch (error) {
     errorMessage.value = error.message
   } finally {
