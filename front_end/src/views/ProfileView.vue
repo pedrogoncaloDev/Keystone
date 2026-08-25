@@ -15,8 +15,7 @@
         v-model="form.currentPassword" placeholder="••••••••" required />
 
       <p v-if="updateError" class="error">{{ updateError }}</p>
-      <p v-if="updateSuccess" class="success">{{ updateSuccess }}</p>
-      <AppButton type="submit" block :disabled="updateLoading">
+      <AppButton type="submit" block :disabled="updateLoading || !hasChanges">
         {{ updateLoading ? 'Salvando...' : 'Salvar alterações' }}
       </AppButton>
     </form>
@@ -48,7 +47,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthLayout from '../components/AuthLayout.vue'
 import FormField from '../components/FormField.vue'
@@ -66,13 +65,24 @@ const form = reactive({
   newPassword: '',
   currentPassword: '',
 })
+const originalValues = reactive({
+  firstName: form.firstName,
+  lastName: form.lastName,
+  email: form.email,
+})
+
+const hasChanges = computed(() =>
+  form.firstName !== originalValues.firstName ||
+  form.lastName !== originalValues.lastName ||
+  form.email !== originalValues.email ||
+  (form.newPassword !== '' && form.newPassword !== form.currentPassword)
+)
+
 const updateError = ref('')
-const updateSuccess = ref('')
 const updateLoading = ref(false)
 
 async function handleUpdate() {
   updateError.value = ''
-  updateSuccess.value = ''
   updateLoading.value = true
   try {
     const currentEmail = auth.user.email
@@ -85,9 +95,11 @@ async function handleUpdate() {
       password: form.newPassword || form.currentPassword,
     })
     setUser({ first_name: form.firstName, last_name: form.lastName, email: form.email })
+    originalValues.firstName = form.firstName
+    originalValues.lastName = form.lastName
+    originalValues.email = form.email
     form.newPassword = ''
     form.currentPassword = ''
-    updateSuccess.value = 'Dados atualizados com sucesso.'
   } catch (error) {
     updateError.value = error.message
   } finally {
@@ -152,13 +164,6 @@ async function handleDelete() {
 
 .error {
   color: var(--color-accent-300);
-  font-size: 13px;
-  margin: calc(var(--space-2) * -1) 0 0;
-}
-
-.success {
-  color: var(--color-text);
-  opacity: 0.75;
   font-size: 13px;
   margin: calc(var(--space-2) * -1) 0 0;
 }
