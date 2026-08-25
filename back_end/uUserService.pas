@@ -26,7 +26,7 @@ type
 
 implementation
 
-uses System.SysUtils;
+uses System.SysUtils, uPasswordHasher;
 
 constructor TUserService.Create(const Repository: IUserRepository);
 begin
@@ -37,7 +37,7 @@ function TUserService.Login(const EmailAddress, PasswordValue: string; out Authe
 begin
   // Senha não é trimada: precisa bater exatamente com o que foi cadastrado.
   Result := FRepository.FindByEmail(EmailAddress.Trim, AuthenticatedUser) and
-            (AuthenticatedUser.Password = PasswordValue);
+            VerifyPassword(PasswordValue, AuthenticatedUser.Password);
 end;
 
 procedure TUserService.RegisterUser(const NewUser: TUserRecord);
@@ -57,19 +57,27 @@ begin
     raise Exception.Create('Sobrenome é obrigatório');
   if TrimmedUser.Email = '' then
     raise Exception.Create('Email é obrigatório');
-  if TrimmedUser.Password.Trim = '' then
+  if NewUser.Password.Trim = '' then
     raise Exception.Create('Senha é obrigatória');
   if FRepository.FindByEmail(TrimmedUser.Email, ExistingUser) then
     raise Exception.Create('Já existe usuário para este email');
+
+  TrimmedUser.Password := HashPassword(NewUser.Password);
   FRepository.InsertUser(TrimmedUser);
 end;
 
 procedure TUserService.UpdateUser(const WhereEmail, WherePassword: string; const NewUser: TUserRecord);
 var
+  ExistingUser: TUserRecord;
   TrimmedUser: TUserRecord;
 begin
   if (WhereEmail.Trim = '') or (WherePassword.Trim = '') then
     raise Exception.Create('Credenciais de origem obrigatórias');
+
+  if not FRepository.FindByEmail(WhereEmail.Trim, ExistingUser) then
+    raise Exception.Create('Credenciais inválidas');
+  if not VerifyPassword(WherePassword, ExistingUser.Password) then
+    raise Exception.Create('Credenciais inválidas');
 
   TrimmedUser := NewUser;
   TrimmedUser.FirstName := NewUser.FirstName.Trim;
@@ -82,17 +90,26 @@ begin
     raise Exception.Create('Sobrenome é obrigatório');
   if TrimmedUser.Email = '' then
     raise Exception.Create('Email é obrigatório');
-  if TrimmedUser.Password.Trim = '' then
+  if NewUser.Password.Trim = '' then
     raise Exception.Create('Senha é obrigatória');
 
-  FRepository.UpdateUserByCredentials(WhereEmail.Trim, WherePassword, TrimmedUser);
+  TrimmedUser.Password := HashPassword(NewUser.Password);
+  FRepository.UpdateUserByEmail(WhereEmail.Trim, TrimmedUser);
 end;
 
 procedure TUserService.DeleteUser(const EmailAddress, PasswordValue: string);
+var
+  ExistingUser: TUserRecord;
 begin
   if (EmailAddress.Trim = '') or (PasswordValue.Trim = '') then
     raise Exception.Create('Email e senha obrigatórios');
-  FRepository.DeleteUserByCredentials(EmailAddress.Trim, PasswordValue);
+
+  if not FRepository.FindByEmail(EmailAddress.Trim, ExistingUser) then
+    raise Exception.Create('Credenciais inválidas');
+  if not VerifyPassword(PasswordValue, ExistingUser.Password) then
+    raise Exception.Create('Credenciais inválidas');
+
+  FRepository.DeleteUserByEmail(EmailAddress.Trim);
 end;
 
 end.

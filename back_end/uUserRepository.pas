@@ -18,8 +18,8 @@ type
     ['{2A1AA4C0-2A06-4F0C-9A7D-75C1F1C30F3F}']
     function FindByEmail(const EmailAddress: string; out FoundUser: TUserRecord): Boolean;
     procedure InsertUser(const NewUser: TUserRecord);
-    procedure UpdateUserByCredentials(const WhereEmail, WherePassword: string; const NewUser: TUserRecord);
-    procedure DeleteUserByCredentials(const EmailAddress, PasswordValue: string);
+    procedure UpdateUserByEmail(const WhereEmail: string; const NewUser: TUserRecord);
+    procedure DeleteUserByEmail(const EmailAddress: string);
   end;
 
   TUserRepositoryFD = class(TInterfacedObject, IUserRepository)
@@ -31,8 +31,8 @@ type
 
     function FindByEmail(const EmailAddress: string; out FoundUser: TUserRecord): Boolean;
     procedure InsertUser(const NewUser: TUserRecord);
-    procedure UpdateUserByCredentials(const WhereEmail, WherePassword: string; const NewUser: TUserRecord);
-    procedure DeleteUserByCredentials(const EmailAddress, PasswordValue: string);
+    procedure UpdateUserByEmail(const WhereEmail: string; const NewUser: TUserRecord);
+    procedure DeleteUserByEmail(const EmailAddress: string);
   end;
 
 implementation
@@ -95,7 +95,7 @@ begin
   end;
 end;
 
-procedure TUserRepositoryFD.UpdateUserByCredentials(const WhereEmail, WherePassword: string; const NewUser: TUserRecord);
+procedure TUserRepositoryFD.UpdateUserByEmail(const WhereEmail: string; const NewUser: TUserRecord);
 var
   Query: TFDQuery;
 begin
@@ -105,29 +105,27 @@ begin
     Query.SQL.Text :=
       'UPDATE users ' +
       'SET first_name = :first_name, last_name = :last_name, email = :email, password = :password ' +
-      'WHERE email = :email_where AND password = :password_where';
-    Query.ParamByName('first_name').AsWideString    := NewUser.FirstName;
-    Query.ParamByName('last_name').AsWideString     := NewUser.LastName;
-    Query.ParamByName('email').AsWideString         := NewUser.Email;
-    Query.ParamByName('password').AsWideString      := NewUser.Password;
-    Query.ParamByName('email_where').AsWideString   := WhereEmail;
-    Query.ParamByName('password_where').AsWideString:= WherePassword;
+      'WHERE email = :email_where';
+    Query.ParamByName('first_name').AsWideString  := NewUser.FirstName;
+    Query.ParamByName('last_name').AsWideString   := NewUser.LastName;
+    Query.ParamByName('email').AsWideString       := NewUser.Email;
+    Query.ParamByName('password').AsWideString    := NewUser.Password;
+    Query.ParamByName('email_where').AsWideString := WhereEmail;
     Query.ExecSQL;
   finally
     Query.Free;
   end;
 end;
 
-procedure TUserRepositoryFD.DeleteUserByCredentials(const EmailAddress, PasswordValue: string);
+procedure TUserRepositoryFD.DeleteUserByEmail(const EmailAddress: string);
 var
   Query: TFDQuery;
 begin
   Query := TFDQuery.Create(nil);
   try
     Query.Connection := FConnection;
-    Query.SQL.Text := 'DELETE FROM users WHERE email = :email AND password = :password';
-    Query.ParamByName('email').AsWideString    := EmailAddress;
-    Query.ParamByName('password').AsWideString := PasswordValue;
+    Query.SQL.Text := 'DELETE FROM users WHERE email = :email';
+    Query.ParamByName('email').AsWideString := EmailAddress;
     Query.ExecSQL;
   finally
     Query.Free;

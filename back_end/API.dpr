@@ -14,6 +14,7 @@ uses
   uUserRepository in 'uUserRepository.pas',
   uUserService in 'uUserService.pas',
   uErrorLogger in 'uErrorLogger.pas',
+  uPasswordHasher in 'uPasswordHasher.pas',
   uApp in 'uApp.pas';
 
 {$R *.res}
