@@ -1,7 +1,7 @@
 <template>
   <div class="auth-shell">
     <div class="auth-card">
-      <div class="auth-brand">Nocturne</div>
+      <div class="auth-brand">Keystone</div>
       <slot />
     </div>
   </div>

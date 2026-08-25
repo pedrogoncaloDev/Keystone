@@ -1,7 +1,7 @@
 <template>
   <AuthLayout>
     <h1 class="title">Bem-vindo{{ greetingSuffix }}</h1>
-    <p class="subtitle">Você está autenticado no Nocturne.</p>
+    <p class="subtitle">Você está autenticado no Keystone.</p>
 
     <div class="card user-card">
       <div class="user-row">

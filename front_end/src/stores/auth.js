@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 
-const STORAGE_KEY = 'nocturne.auth.user'
+const STORAGE_KEY = 'Keystone.auth.user'
 
 function loadUser() {
   try {
