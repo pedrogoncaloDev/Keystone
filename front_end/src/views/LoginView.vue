@@ -8,9 +8,6 @@
         required />
       <FormField id="login-password" label="Senha" type="password" v-model="form.password" placeholder="••••••••"
         required />
-      <div class="forgot-row">
-        <a href="#">Esqueceu a senha?</a>
-      </div>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       <AppButton type="submit" block :disabled="loading">{{ loading ? 'Entrando...' : 'Entrar' }}</AppButton>
     </form>
@@ -67,17 +64,6 @@ async function handleSubmit() {
 .form {
   display: grid;
   gap: var(--space-4);
-}
-
-.forgot-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: calc(var(--space-2) * -1);
-}
-
-.forgot-row a {
-  font-size: 13px;
-  text-decoration: none;
 }
 
 .error {
