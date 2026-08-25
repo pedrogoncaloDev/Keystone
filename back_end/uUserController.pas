@@ -84,7 +84,7 @@ begin
           EmailAddress  := JsonGetString(RequestBody, 'email', '');
           PasswordValue := JsonGetString(RequestBody, 'password', '');
 
-          if (EmailAddress = '') or (PasswordValue = '') then
+          if (EmailAddress.Trim = '') or (PasswordValue.Trim = '') then
           begin
             Response.Status(THTTPStatus.BadRequest).Send('Email e senha obrigatórios');
             Exit;

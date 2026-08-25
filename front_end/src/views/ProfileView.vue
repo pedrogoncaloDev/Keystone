@@ -108,6 +108,10 @@ function cancelDelete() {
 
 async function handleDelete() {
   deleteError.value = ''
+  if (!deletePassword.value.trim()) {
+    deleteError.value = 'Informe sua senha atual.'
+    return
+  }
   deleteLoading.value = true
   try {
     await deleteUser(auth.user.email, deletePassword.value)
