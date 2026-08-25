@@ -14,10 +14,16 @@
       </div>
     </div>
 
-    <AppButton variant="ghost" block @click="handleLogout">
-      Sair
-      <template #icon></template>
-    </AppButton>
+    <div class="actions">
+      <AppButton block @click="router.push({ name: 'profile' })">
+        Editar perfil
+      </AppButton>
+
+      <AppButton variant="ghost" block @click="handleLogout">
+        Sair
+        <template #icon></template>
+      </AppButton>
+    </div>
   </AuthLayout>
 </template>
 
@@ -55,6 +61,11 @@ function handleLogout() {
 
 .user-card {
   margin-bottom: var(--space-6);
+}
+
+.actions {
+  display: grid;
+  gap: var(--space-4);
 }
 
 .user-row {

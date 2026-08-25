@@ -4,6 +4,7 @@ import App from './App.vue'
 import LoginView from './views/LoginView.vue'
 import SignupView from './views/SignupView.vue'
 import HomeView from './views/HomeView.vue'
+import ProfileView from './views/ProfileView.vue'
 import { useAuth } from './stores/auth'
 import './assets/styles.css'
 
@@ -14,6 +15,7 @@ const router = createRouter({
     { path: '/login', name: 'login', component: LoginView },
     { path: '/criar-conta', name: 'signup', component: SignupView },
     { path: '/home', name: 'home', component: HomeView, meta: { requiresAuth: true } },
+    { path: '/perfil', name: 'profile', component: ProfileView, meta: { requiresAuth: true } },
   ],
 })
 
