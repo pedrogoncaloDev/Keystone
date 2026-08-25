@@ -20,7 +20,7 @@ type
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils, uErrorLogger;
 
 constructor TUserController.Create(const Service: IUserService);
 begin
@@ -114,6 +114,7 @@ begin
       except
         on E: Exception do
         begin
+          LogError('POST /users/login', E);
           // Não re-raise! Converte para resposta HTTP
           Response.Status(THTTPStatus.BadRequest).Send(E.Message);
         end;
@@ -151,6 +152,7 @@ begin
       except
         on E: Exception do
         begin
+          LogError('POST /users/cadastro', E);
           // Se quiser diferenciar conflitos (email já existe), use 409:
           // Response.Status(THTTPStatus.Conflict).Send(E.Message);
           Response.Status(THTTPStatus.BadRequest).Send(E.Message);
@@ -192,7 +194,10 @@ begin
         end;
       except
         on E: Exception do
+        begin
+          LogError('PUT /users/atualizar', E);
           Response.Status(THTTPStatus.BadRequest).Send(E.Message);
+        end;
       end;
     end);
 
@@ -227,7 +232,10 @@ begin
         end;
       except
         on E: Exception do
+        begin
+          LogError('DELETE /users/deletar', E);
           Response.Status(THTTPStatus.BadRequest).Send(E.Message);
+        end;
       end;
     end);
 end;

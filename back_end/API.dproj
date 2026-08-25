@@ -107,6 +107,7 @@
         <DCCReference Include="uUserController.pas"/>
         <DCCReference Include="uUserRepository.pas"/>
         <DCCReference Include="uUserService.pas"/>
+        <DCCReference Include="uErrorLogger.pas"/>
         <DCCReference Include="uApp.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

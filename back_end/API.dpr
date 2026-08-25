@@ -13,6 +13,7 @@ uses
   uUserController in 'uUserController.pas',
   uUserRepository in 'uUserRepository.pas',
   uUserService in 'uUserService.pas',
+  uErrorLogger in 'uErrorLogger.pas',
   uApp in 'uApp.pas';
 
 {$R *.res}
