@@ -62,8 +62,8 @@ begin
       else
         Add('Server=' + Params.Host + ',' + Params.Port);
 
-      // para verificar se o banco está criado conecto no banco master do sql server
-      // para criar as tabelas conecto no banco da aplicação(nome no .ini)
+      // para verificar se o banco estï¿½ criado conecto no banco master do sql server
+      // para criar as tabelas conecto no banco da aplicaï¿½ï¿½o(nome no .ini)
       Add('Database=' + NameDatabase);
       Add('User_Name=' + Params.User);
       Add('Password=' + Params.Password);
@@ -119,7 +119,6 @@ begin
         Query.ExecSQL;
       finally
         Query.Free;
-        FConnection.Free;
       end;
     end;
   except

@@ -9,6 +9,7 @@ type
   TUserController = class
   private
     FService: IUserService;
+    function GetUtf8Body(const Request: THorseRequest): string;
     function JsonGetString(const JsonObject: TJSONObject; const Key: string; const DefaultValue: string = ''): string;
     function JsonToUser(const JsonObject: TJSONObject): TUserRecord;
   public
@@ -24,6 +25,15 @@ uses
 constructor TUserController.Create(const Service: IUserService);
 begin
   FService := Service;
+end;
+
+function TUserController.GetUtf8Body(const Request: THorseRequest): string;
+begin
+  // O charset do Content-Type enviado pelo cliente nem sempre vem como utf-8;
+  // JSON é sempre UTF-8 (RFC 8259), então decodificamos os bytes crus assim,
+  // em vez de usar Request.Body (que usa TEncoding.ANSI quando falta o charset
+  // no header, corrompendo caracteres acentuados).
+  Result := TEncoding.UTF8.GetString(BytesOf(Request.RawWebRequest.RawContent));
 end;
 
 function TUserController.JsonGetString(const JsonObject: TJSONObject; const Key: string; const DefaultValue: string): string;
@@ -54,6 +64,7 @@ begin
       RequestBody: TJSONObject;
       EmailAddress, PasswordValue: string;
       AuthenticatedUser: TUserRecord;
+      ResponseJson: TJSONObject;
     begin
       try
         if Request.Body.IsEmpty then
@@ -62,7 +73,7 @@ begin
           Exit;
         end;
 
-        RequestBody := TJSONObject.ParseJSONValue(Request.Body) as TJSONObject;
+        RequestBody := TJSONObject.ParseJSONValue(GetUtf8Body(Request)) as TJSONObject;
         if not Assigned(RequestBody) then
         begin
           Response.Status(THTTPStatus.BadRequest).Send('JSON inválido');
@@ -80,15 +91,21 @@ begin
           end;
 
           if FService.Login(EmailAddress, PasswordValue, AuthenticatedUser) then
-            Response
-              .Status(THTTPStatus.OK)
-              .Send(
-                TJSONObject.Create
-                  .AddPair('message', 'Acesso liberado')
-                  .AddPair('first_name', AuthenticatedUser.FirstName)
-                  .AddPair('last_name',  AuthenticatedUser.LastName)
-                  .AddPair('email',      AuthenticatedUser.Email)
-              )
+          begin
+            ResponseJson := TJSONObject.Create
+              .AddPair('message', 'Acesso liberado')
+              .AddPair('first_name', AuthenticatedUser.FirstName)
+              .AddPair('last_name',  AuthenticatedUser.LastName)
+              .AddPair('email',      AuthenticatedUser.Email);
+            try
+              Response
+                .Status(THTTPStatus.OK)
+                .ContentType('application/json; charset=utf-8')
+                .Send(ResponseJson.ToJSON);
+            finally
+              ResponseJson.Free;
+            end;
+          end
           else
             Response.Status(THTTPStatus.Unauthorized).Send('Acesso negado');
         finally
@@ -117,7 +134,7 @@ begin
           Exit;
         end;
 
-        RequestBody := TJSONObject.ParseJSONValue(Request.Body) as TJSONObject;
+        RequestBody := TJSONObject.ParseJSONValue(GetUtf8Body(Request)) as TJSONObject;
         if not Assigned(RequestBody) then
         begin
           Response.Status(THTTPStatus.BadRequest).Send('JSON inválido');
@@ -156,7 +173,7 @@ begin
           Exit;
         end;
 
-        RequestBody := TJSONObject.ParseJSONValue(Request.Body) as TJSONObject;
+        RequestBody := TJSONObject.ParseJSONValue(GetUtf8Body(Request)) as TJSONObject;
         if not Assigned(RequestBody) then
         begin
           Response.Status(THTTPStatus.BadRequest).Send('JSON inválido');
@@ -193,7 +210,7 @@ begin
           Exit;
         end;
 
-        RequestBody := TJSONObject.ParseJSONValue(Request.Body) as TJSONObject;
+        RequestBody := TJSONObject.ParseJSONValue(GetUtf8Body(Request)) as TJSONObject;
         if not Assigned(RequestBody) then
         begin
           Response.Status(THTTPStatus.BadRequest).Send('JSON inválido');

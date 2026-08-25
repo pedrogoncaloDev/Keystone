@@ -47,6 +47,12 @@ begin
   UserService := TUserService.Create(UserRepository);
   UserController := TUserController.Create(UserService);
 
+  THorse.Use(
+    procedure(Req: THorseRequest; Res: THorseResponse; Next: TProc)
+    begin
+      Res.ContentType('text/plain; charset=utf-8');
+      Next();
+    end);
   THorse.Use(Cors);
   UserController.RegisterRoutes;
   THorse.Listen(ListenPort);

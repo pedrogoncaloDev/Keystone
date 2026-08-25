@@ -59,8 +59,9 @@ begin
   try
     Query.Connection := FConnection;
     Query.SQL.Text := 'SELECT first_name, last_name, email, password FROM users WHERE email = :email';
-    Query.ParamByName('email').AsString := EmailAddress;
+    Query.ParamByName('email').AsWideString := EmailAddress;
     Query.Open;
+
     if not Query.Eof then
     begin
       FoundUser.FirstName := Query.FieldByName('first_name').AsString;
@@ -84,10 +85,10 @@ begin
     Query.SQL.Text :=
       'INSERT INTO users (first_name, last_name, email, password) ' +
       'VALUES (:first_name, :last_name, :email, :password)';
-    Query.ParamByName('first_name').AsString := NewUser.FirstName;
-    Query.ParamByName('last_name').AsString  := NewUser.LastName;
-    Query.ParamByName('email').AsString      := NewUser.Email;
-    Query.ParamByName('password').AsString   := NewUser.Password;
+    Query.ParamByName('first_name').AsWideString := NewUser.FirstName;
+    Query.ParamByName('last_name').AsWideString  := NewUser.LastName;
+    Query.ParamByName('email').AsWideString      := NewUser.Email;
+    Query.ParamByName('password').AsWideString   := NewUser.Password;
     Query.ExecSQL;
   finally
     Query.Free;
@@ -105,12 +106,12 @@ begin
       'UPDATE users ' +
       'SET first_name = :first_name, last_name = :last_name, email = :email, password = :password ' +
       'WHERE email = :email_where AND password = :password_where';
-    Query.ParamByName('first_name').AsString    := NewUser.FirstName;
-    Query.ParamByName('last_name').AsString     := NewUser.LastName;
-    Query.ParamByName('email').AsString         := NewUser.Email;
-    Query.ParamByName('password').AsString      := NewUser.Password;
-    Query.ParamByName('email_where').AsString   := WhereEmail;
-    Query.ParamByName('password_where').AsString:= WherePassword;
+    Query.ParamByName('first_name').AsWideString    := NewUser.FirstName;
+    Query.ParamByName('last_name').AsWideString     := NewUser.LastName;
+    Query.ParamByName('email').AsWideString         := NewUser.Email;
+    Query.ParamByName('password').AsWideString      := NewUser.Password;
+    Query.ParamByName('email_where').AsWideString   := WhereEmail;
+    Query.ParamByName('password_where').AsWideString:= WherePassword;
     Query.ExecSQL;
   finally
     Query.Free;
@@ -125,8 +126,8 @@ begin
   try
     Query.Connection := FConnection;
     Query.SQL.Text := 'DELETE FROM users WHERE email = :email AND password = :password';
-    Query.ParamByName('email').AsString    := EmailAddress;
-    Query.ParamByName('password').AsString := PasswordValue;
+    Query.ParamByName('email').AsWideString    := EmailAddress;
+    Query.ParamByName('password').AsWideString := PasswordValue;
     Query.ExecSQL;
   finally
     Query.Free;
